@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TRYBNUS Auto — Dealer Manager</title>
+<meta name="theme-color" content="#16233B">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TRYBNUS Auto">
+<style>
+:root{
+  --ink:#16233B; --ink-soft:#2A3A57; --paper:#F5F3ED; --card:#FFF;
+  --gold:#C9A227; --gold-soft:#F0E4BC; --green:#2E7D32; --red:#B3402A;
+  --gray:#6B7280; --line:#E3DFD4;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --disp:'Arial Narrow','Helvetica Neue Condensed',Impact,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);font-family:system-ui,-apple-system,sans-serif;color:var(--ink);padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+header{background:var(--ink);padding:calc(14px + env(safe-area-inset-top)) 16px 13px}
+.hwrap{max-width:560px;margin:0 auto;display:flex;justify-content:space-between;align-items:baseline}
+.brand{font-family:var(--disp);font-size:26px;font-weight:700;color:var(--gold-soft);text-transform:uppercase;letter-spacing:.06em;line-height:1}
+.brand span{color:var(--gold)}
+.sub{font-size:10px;color:#8FA0BF;letter-spacing:.22em;text-transform:uppercase;margin-top:3px}
+.hnet{font-family:var(--mono);font-size:18px;font-weight:800;text-align:right}
+.hnetl{font-size:9px;color:#8FA0BF;letter-spacing:.18em;text-transform:uppercase;text-align:right}
+main{max-width:560px;margin:0 auto;padding:16px 14px}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:2px solid var(--gold);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;padding:14px 4px 12px;border:none;background:transparent;color:#8FA0BF;font-family:var(--disp);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;border-top:3px solid transparent;margin-top:-2px;cursor:pointer}
+.tabs button.on{color:var(--gold);border-top-color:var(--gold)}
+.badge{margin-left:5px;background:var(--gold);color:var(--ink);border-radius:9px;font-size:10px;padding:1px 6px;font-family:system-ui;font-weight:800}
+.seg{display:flex;gap:8px;margin-bottom:14px}
+.seg button{flex:1;padding:9px 8px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--ink-soft)}
+.seg button.on{border-color:var(--ink);background:var(--ink);color:var(--gold-soft)}
+.tiles{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 12px 10px;flex:1 1 40%;min-width:130px}
+.tile .v{font-family:var(--mono);font-size:22px;font-weight:700}
+.tile .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-top:2px;font-weight:700}
+.vcard{background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--line);box-shadow:0 1px 2px rgba(22,35,59,.06);margin-bottom:12px}
+.stripe{padding:6px 14px;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.vbody{padding:12px 14px}
+.vtitle{font-family:var(--disp);font-size:24px;font-weight:700;text-transform:uppercase;line-height:1.05}
+.vin{font-family:var(--mono);font-size:11px;color:var(--gray);margin-top:3px;letter-spacing:.05em}
+.pricebar{display:flex;margin-top:12px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.pricebar>div{flex:1;padding:8px 6px;text-align:center;background:#FBFAF6}
+.pricebar>div+div{border-left:1px solid var(--line)}
+.pricebar .n{font-family:var(--mono);font-size:15px;font-weight:700}
+.pricebar .t{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray);font-weight:700}
+.profitrow{margin-top:10px;display:flex;justify-content:space-between;align-items:center;border-radius:8px;padding:8px 12px}
+.notes{font-size:13px;color:var(--ink-soft);margin-top:10px}
+.acts{display:flex;gap:8px;margin-top:12px}
+.btn{padding:12px 14px;font-size:14px;font-weight:800;border-radius:8px;border:none;cursor:pointer;letter-spacing:.03em}
+.btn.pri{background:var(--ink);color:var(--gold-soft)}
+.btn.gold{background:var(--gold);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.dgr{background:transparent;color:var(--red);border:1.5px solid var(--red)}
+.btn.full{width:100%;margin-top:4px}
+.btn.grow{flex:1}
+.btn:disabled{opacity:.4}
+.row{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row .main{min-width:0}
+.row .t1{font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t2{font-size:12px;color:var(--gray)}
+.row .amt{font-family:var(--mono);font-weight:800;font-size:16px}
+h3.sect{font-family:var(--disp);text-transform:uppercase;font-size:16px;color:var(--ink-soft);letter-spacing:.06em;margin:18px 0 8px}
+.empty{text-align:center;padding:48px 24px;color:var(--gray)}
+.empty .e1{font-family:var(--disp);font-size:20px;text-transform:uppercase;color:var(--ink-soft)}
+.empty .e2{font-size:14px;margin-top:6px}
+.overlay{position:fixed;inset:0;background:rgba(22,35,59,.55);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--paper);width:100%;max-width:560px;max-height:88vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:18px 18px calc(28px + env(safe-area-inset-bottom))}
+.shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.shead h2{font-family:var(--disp);font-size:21px;text-transform:uppercase;letter-spacing:.02em}
+.x{border:none;background:transparent;font-size:26px;color:var(--gray);cursor:pointer;line-height:1}
+label.f{display:block;margin-bottom:10px}
+label.f .fl{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:4px;font-weight:700}
+input,select{width:100%;padding:10px 12px;font-size:16px;border:1.5px solid var(--line);border-radius:8px;background:#FDFCFA;color:var(--ink);outline:none;font-family:inherit}
+.two{display:flex;gap:10px}.two>*{flex:1}
+.pl{background:var(--ink);border-radius:12px;padding:16px 16px 14px;margin-bottom:14px}
+.pl .cap{font-size:10px;color:#8FA0BF;letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;font-weight:700}
+.pl .li{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}
+.pl .li .k{color:#B9C4D8}
+.pl .li .v{font-family:var(--mono);font-weight:700}
+.pl .tot{border-top:1px solid var(--ink-soft);margin-top:8px;padding-top:10px;display:flex;justify-content:space-between;align-items:center}
+.pl .tot .k{color:var(--gold-soft);font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.08em}
+.pl .tot .v{font-family:var(--mono);font-weight:800;font-size:20px}
+.alertbar{background:var(--gold-soft);border:1.5px solid var(--gold);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:700}
+a.call{flex:1;text-decoration:none}
+a.call .btn{width:100%}
+.green{color:var(--green)}.red{color:var(--red)}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div>
+      <div class="brand">TRYBNUS <span>AUTO</span></div>
+      <div class="sub">Dealer records · Page Blvd</div>
+    </div>
+    <div>
+      <div class="hnet" id="hnet">$0</div>
+      <div class="hnetl">Net all-time</div>
+    </div>
+  </div>
+</header>
+<main id="main"></main>
+<nav class="tabs" id="tabs"></nav>
+<div id="modal"></div>
+
+<script>
+"use strict";
+/* ---------- state ---------- */
+const KEY = "trybnus-dealer-data";
+let data = { vehicles: [], customers: [], expenses: [] };
+try { const raw = localStorage.getItem(KEY); if (raw) data = Object.assign({vehicles:[],customers:[],expenses:[]}, JSON.parse(raw)); } catch(e){}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e){ alert("Could not save — storage may be full."); } };
+
+let tab = "lot", lotFilter = "active", modal = null;
+
+/* ---------- helpers ---------- */
+const uid = () => Math.random().toString(36).slice(2,10);
+const today = () => new Date().toISOString().slice(0,10);
+const N = (x) => Number(x) || 0;
+const fmt = (n) => (N(n)).toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+const days = (a,b) => { if(!a) return 0; const d = Math.round((new Date(b||today()) - new Date(a))/864e5); return isNaN(d)?0:Math.max(d,0); };
+const mKey = (s) => (s||"").slice(0,7);
+const mLabel = (k) => { if(!k) return ""; const [y,m]=k.split("-"); return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m-1]+" "+y; };
+const reconOf = (v) => N(v.recon) + (v.serviceLog||[]).reduce((s,i)=>s+N(i.cost),0);
+const esc = (s) => String(s??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const custName = (id) => (data.customers.find(c=>c.id===id)||{}).name || "";
+
+const stats = () => {
+  const act = data.vehicles.filter(v=>v.status!=="Sold");
+  const sold = data.vehicles.filter(v=>v.status==="Sold");
+  const inv = act.reduce((s,v)=>s+N(v.buyPrice)+reconOf(v),0);
+  const revenue = sold.reduce((s,v)=>s+N(v.salePrice),0);
+  const cogs = sold.reduce((s,v)=>s+N(v.buyPrice)+reconOf(v),0);
+  const gross = revenue-cogs;
+  const expenses = data.expenses.reduce((s,e)=>s+N(e.amount),0);
+  const avgDays = sold.length ? Math.round(sold.reduce((s,v)=>s+days(v.buyDate,v.soldDate),0)/sold.length) : 0;
+  const mk = mKey(today());
+  const moGross = sold.filter(v=>mKey(v.soldDate)===mk).reduce((s,v)=>s+N(v.salePrice)-N(v.buyPrice)-reconOf(v),0);
+  const moExp = data.expenses.filter(e=>mKey(e.date)===mk).reduce((s,e)=>s+N(e.amount),0);
+  return {act,sold,inv,revenue,cogs,gross,expenses,avgDays,net:gross-expenses,moGross,moExp};
+};
+const overdue = () => data.customers.filter(c=>c.followUp && c.followUp<=today());
+
+/* ---------- render ---------- */
+function render(){
+  const S = stats();
+  const hn = document.getElementById("hnet");
+  hn.textContent = fmt(S.net);
+  hn.style.color = S.net>=0 ? "#8FD694" : "#F0A090";
+
+  document.getElementById("tabs").innerHTML = [
+    ["lot","Lot"],["sales","Sales"],["people","People"],["money","Money"]
+  ].map(([k,l]) => `<button class="${tab===k?"on":""}" onclick="go('${k}')">${l}${k==="people"&&overdue().length?`<span class="badge">${overdue().length}</span>`:""}</button>`).join("");
+
+  const m = document.getElementById("main");
+  if (tab==="lot") m.innerHTML = viewLot(S);
+  else if (tab==="sales") m.innerHTML = viewSales(S);
+  else if (tab==="people") m.innerHTML = viewPeople();
+  else m.innerHTML = viewMoney(S);
+
+  document.getElementById("modal").innerHTML = modal ? modal() : "";
+}
+function go(t){ tab=t; modal=null; render(); }
+
+/* ---------- lot ---------- */
+function vCard(v){
+  const isSold = v.status==="Sold";
+  const invested = N(v.buyPrice)+reconOf(v);
+  const profit = isSold ? N(v.salePrice)-invested : null;
+  const d = isSold ? days(v.buyDate,v.soldDate) : days(v.buyDate,today());
+  const stripeBg = isSold ? "var(--green)" : v.status==="In Recon" ? "var(--ink-soft)" : "var(--gold)";
+  const stripeCol = isSold ? "#EAF4EA" : v.status==="In Recon" ? "var(--gold-soft)" : "var(--ink)";
+  const svcCount = (v.serviceLog||[]).length;
+  return `<div class="vcard">
+    <div class="stripe" style="background:${stripeBg};color:${stripeCol}">
+      <span>${esc(v.status)}</span><span style="font-family:var(--mono);letter-spacing:0">${d} days ${isSold?"held":"on lot"}</span>
+    </div>
+    <div class="vbody">
+      <div class="vtitle">${esc(v.year)} ${esc(v.make)} ${esc(v.model)}</div>
+      ${v.vin?`<div class="vin">VIN ${esc(v.vin)}</div>`:""}
+      <div class="pricebar">
+        <div><div class="n">${fmt(v.buyPrice)}</div><div class="t">Bought</div></div>
+        <div><div class="n">${fmt(reconOf(v))}</div><div class="t">Recon</div></div>
+        <div><div class="n">${isSold?fmt(v.salePrice):fmt(v.asking)}</div><div class="t">${isSold?"Sold for":"Asking"}</div></div>
+      </div>
+      ${isSold?`<div class="profitrow" style="background:${profit>=0?"#EEF6EE":"#FBEDEA"}">
+        <span style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em" class="${profit>=0?"green":"red"}">${profit>=0?"Profit":"Loss"}${v.buyerId?` · ${esc(custName(v.buyerId))}`:""}</span>
+        <span style="font-family:var(--mono);font-size:18px;font-weight:800" class="${profit>=0?"green":"red"}">${fmt(profit)}</span>
+      </div>`:""}
+      ${v.notes?`<div class="notes">${esc(v.notes)}</div>`:""}
+      <div class="acts">
+        ${!isSold?`<button class="btn gold grow" onclick="openSell('${v.id}')">Mark sold</button>`:""}
+        <button class="btn ghost grow" onclick="openService('${v.id}')">Service${svcCount?` (${svcCount})`:""}</button>
+        <button class="btn ghost grow" onclick="openVehicle('${v.id}')">Edit</button>
+        <button class="btn dgr" onclick="delVehicle('${v.id}')">×</button>
+      </div>
+    </div>
+  </div>`;
+}
+function viewLot(S){
+  const list = lotFilter==="active" ? S.act : S.sold.slice().sort((a,b)=>(b.soldDate||"").localeCompare(a.soldDate||""));
+  return `
+  <div class="seg">
+    <button class="${lotFilter==="active"?"on":""}" onclick="lotFilter='active';render()">On lot (${S.act.length})</button>
+    <button class="${lotFilter==="sold"?"on":""}" onclick="lotFilter='sold';render()">Sold (${S.sold.length})</button>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="v">${fmt(S.inv)}</div><div class="l">Cash in inventory</div></div>
+    <div class="tile"><div class="v">${S.avgDays||"—"}</div><div class="l">Avg days to sell</div></div>
+  </div>
+  ${list.map(vCard).join("") || `<div class="empty"><div class="e1">${lotFilter==="active"?"Lot is empty":"No sales yet"}</div><div class="e2">${lotFilter==="active"?"Tap + Add unit to log your first vehicle.":"Mark a unit sold and it lands here."}</div></div>`}
+  <button class="btn gold full" onclick="openVehicle()">+ Add unit</button>`;
+}
+
+/* ---------- sales ---------- */
+function viewSales(S){
+  const sold = S.sold.slice().sort((a,b)=>(b.soldDate||"").localeCompare(a.soldDate||""));
+  const byMonth = {};
+  sold.forEach(v=>{ const k=mKey(v.soldDate)||"unknown"; const p=N(v.salePrice)-N(v.buyPrice)-reconOf(v);
+    byMonth[k]=byMonth[k]||{units:0,profit:0}; byMonth[k].units++; byMonth[k].profit+=p; });
+  return `
+  <div class="tiles">
+    <div class="tile"><div class="v">${sold.length}</div><div class="l">Units sold</div></div>
+    <div class="tile"><div class="v">${fmt(S.revenue)}</div><div class="l">Revenue</div></div>
+    <div class="tile"><div class="v ${S.gross>=0?"green":"red"}">${fmt(S.gross)}</div><div class="l">Gross profit</div></div>
+    <div class="tile"><div class="v">${sold.length?fmt(S.gross/sold.length):"—"}</div><div class="l">Avg profit / unit</div></div>
+  </div>
+  ${sold.length ? `
+    <h3 class="sect">By month</h3>
+    ${Object.entries(byMonth).sort((a,b)=>b[0].localeCompare(a[0])).map(([k,m])=>`
+      <div class="row"><div class="main"><div class="t1">${mLabel(k)}</div><div class="t2">${m.units} unit${m.units!==1?"s":""}</div></div>
+      <div class="amt ${m.profit>=0?"green":"red"}">${fmt(m.profit)}</div></div>`).join("")}
+    <h3 class="sect">Every deal</h3>
+    ${sold.map(v=>{ const p=N(v.salePrice)-N(v.buyPrice)-reconOf(v); return `
+      <div class="row"><div class="main"><div class="t1">${esc(v.year)} ${esc(v.make)} ${esc(v.model)}</div>
+      <div class="t2">${esc(v.soldDate||"")} · ${days(v.buyDate,v.soldDate)} days${v.buyerId?` · ${esc(custName(v.buyerId))}`:""}</div></div>
+      <div class="amt ${p>=0?"green":"red"}">${fmt(p)}</div></div>`; }).join("")}
+  ` : `<div class="empty"><div class="e1">No sales yet</div><div class="e2">Your first flip will show up here with profit and days held.</div></div>`}`;
+}
+
+/* ---------- people ---------- */
+function viewPeople(){
+  const od = overdue();
+  return `
+  ${od.length?`<div class="alertbar">${od.length} follow-up${od.length!==1?"s":""} due — call them today.</div>`:""}
+  ${data.customers.map(c=>{
+    const due = c.followUp && c.followUp<=today();
+    return `<div class="row" style="flex-direction:column;align-items:stretch;border-color:${due?"var(--gold)":"var(--line)"};border-width:1.5px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font-weight:800;font-size:16px">${esc(c.name)}</div>
+        ${c.followUp?`<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:${due?"var(--red)":"var(--gray)"}">${due?"Follow up now":"Follow up "+esc(c.followUp)}</span>`:""}
+      </div>
+      ${(c.phone||c.email)?`<div style="font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-top:4px">${esc(c.phone||"")}${c.phone&&c.email?" · ":""}${esc(c.email||"")}</div>`:""}
+      ${c.notes?`<div class="notes">${esc(c.notes)}</div>`:""}
+      <div class="acts">
+        ${c.phone?`<a class="call" href="tel:${esc(c.phone)}"><button class="btn gold">Call</button></a>`:""}
+        <button class="btn ghost grow" onclick="openCustomer('${c.id}')">Edit</button>
+        <button class="btn dgr" onclick="delCustomer('${c.id}')">×</button>
+      </div>
+    </div>`;
+  }).join("") || `<div class="empty"><div class="e1">No customers yet</div><div class="e2">Add leads, buyers, and storage customers here so no follow-up slips.</div></div>`}
+  <button class="btn gold full" onclick="openCustomer()">+ Add customer</button>`;
+}
+
+/* ---------- money ---------- */
+function viewMoney(S){
+  return `
+  <div class="pl">
+    <div class="cap">Profit &amp; loss — all time</div>
+    <div class="li"><span class="k">Vehicle revenue</span><span class="v" style="color:var(--gold-soft)">${fmt(S.revenue)}</span></div>
+    <div class="li"><span class="k">Cost of vehicles + recon</span><span class="v" style="color:#8FA0BF">−${fmt(S.cogs).replace("-","")}</span></div>
+    <div class="li"><span class="k">Gross profit</span><span class="v" style="color:${S.gross>=0?"#8FD694":"#F0A090"}">${fmt(S.gross)}</span></div>
+    <div class="li"><span class="k">Operating expenses</span><span class="v" style="color:#8FA0BF">−${fmt(S.expenses).replace("-","")}</span></div>
+    <div class="tot"><span class="k">Net</span><span class="v" style="color:${S.net>=0?"#8FD694":"#F0A090"}">${fmt(S.net)}</span></div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="v ${S.moGross>=0?"green":"red"}">${fmt(S.moGross)}</div><div class="l">This month gross</div></div>
+    <div class="tile"><div class="v red">${fmt(S.moExp)}</div><div class="l">This month expenses</div></div>
+  </div>
+  <h3 class="sect">Expenses</h3>
+  ${data.expenses.map(e=>`
+    <div class="row"><div class="main"><div class="t1">${esc(e.category)}${e.note?" — "+esc(e.note):""}</div><div class="t2" style="font-family:var(--mono)">${esc(e.date)}</div></div>
+    <div style="display:flex;align-items:center;gap:10px"><span class="amt red">−${fmt(e.amount).replace("-","")}</span>
+    <button class="x" onclick="delExpense('${e.id}')" aria-label="Delete expense">×</button></div></div>`).join("")
+    || `<div class="empty"><div class="e1">No expenses logged</div><div class="e2">Track insurance, auction fees, lot costs — clean books build your loan file.</div></div>`}
+  <button class="btn gold full" onclick="openExpense()">+ Add expense</button>`;
+}
+
+/* ---------- sheets ---------- */
+const F = (label, inner) => `<label class="f"><span class="fl">${label}</span>${inner}</label>`;
+const sheet = (title, body) => `<div class="overlay" onclick="if(event.target===this){modal=null;render()}">
+  <div class="sheet"><div class="shead"><h2>${title}</h2><button class="x" onclick="modal=null;render()">×</button></div>${body}</div></div>`;
+const val = (id) => (document.getElementById(id)||{}).value?.trim() ?? "";
+
+function openVehicle(id){
+  const v = id ? data.vehicles.find(x=>x.id===id) : null;
+  modal = () => sheet(v?"Edit unit":"Add unit", `
+    <div class="two">
+      ${F("Year",`<input id="f_year" inputmode="numeric" placeholder="2015" value="${esc(v?.year||"")}">`)}
+      ${F("Make",`<input id="f_make" placeholder="Chevrolet" value="${esc(v?.make||"")}">`)}
+    </div>
+    ${F("Model",`<input id="f_model" placeholder="Malibu LT" value="${esc(v?.model||"")}">`)}
+    ${F("VIN (optional)",`<input id="f_vin" style="font-family:var(--mono)" placeholder="1G1ZD5ST..." value="${esc(v?.vin||"")}">`)}
+    <div class="two">
+      ${F("Buy price",`<input id="f_buy" inputmode="decimal" placeholder="4500" value="${esc(v?.buyPrice||"")}">`)}
+      ${F("Recon (base)",`<input id="f_recon" inputmode="decimal" placeholder="0" value="${esc(v?.recon||"")}">`)}
+    </div>
+    <div class="two">
+      ${F("Asking price",`<input id="f_ask" inputmode="decimal" placeholder="7200" value="${esc(v?.asking||"")}">`)}
+      ${F("Purchase date",`<input id="f_bdate" type="date" value="${esc(v?.buyDate||today())}">`)}
+    </div>
+    ${F("Status",`<select id="f_status">
+      <option ${(v?.status||"In Recon")==="In Recon"?"selected":""}>In Recon</option>
+      <option ${v?.status==="For Sale"?"selected":""}>For Sale</option>
+      ${v?.status==="Sold"?"<option selected>Sold</option>":""}
+    </select>`)}
+    ${F("Notes",`<input id="f_notes" placeholder="Needs tires · title in hand" value="${esc(v?.notes||"")}">`)}
+    <button class="btn pri full" onclick="saveVehicle('${id||""}')">${v?"Save changes":"Add to lot"}</button>`);
+  render();
+}
+function saveVehicle(id){
+  if(!val("f_make")||!val("f_model")){ alert("Make and model are required."); return; }
+  const f = { year:val("f_year"), make:val("f_make"), model:val("f_model"), vin:val("f_vin"),
+    buyPrice:val("f_buy"), recon:val("f_recon"), asking:val("f_ask"),
+    buyDate:val("f_bdate")||today(), status:val("f_status")||"In Recon", notes:val("f_notes") };
+  if(id){ const i=data.vehicles.findIndex(x=>x.id===id); data.vehicles[i]=Object.assign({},data.vehicles[i],f); }
+  else data.vehicles.unshift(Object.assign({id:uid(),serviceLog:[]},f));
+  save(); modal=null; render();
+}
+function delVehicle(id){
+  const v = data.vehicles.find(x=>x.id===id);
+  if(!confirm(`Remove ${v.year} ${v.make} ${v.model}? This can't be undone.`)) return;
+  data.vehicles = data.vehicles.filter(x=>x.id!==id); save(); render();
+}
+function openSell(id){
+  const v = data.vehicles.find(x=>x.id===id);
+  modal = () => sheet(`Sell ${esc(v.year)} ${esc(v.make)} ${esc(v.model)}`, `
+    <div class="two">
+      ${F("Sale price",`<input id="s_price" inputmode="decimal" value="${esc(v.asking||"")}">`)}
+      ${F("Sale date",`<input id="s_date" type="date" value="${today()}">`)}
+    </div>
+    ${F("Buyer (existing customer)",`<select id="s_cust"><option value="">— none —</option>
+      ${data.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>`)}
+    ${F("Or add new buyer name",`<input id="s_new" placeholder="Buyer name">`)}
+    <button class="btn gold full" onclick="recordSale('${id}')">Record sale</button>`);
+  render();
+}
+function recordSale(id){
+  if(val("s_price")===""){ alert("Enter the sale price."); return; }
+  let customerId = val("s_cust");
+  const newName = val("s_new");
+  if(!customerId && newName){ customerId = uid(); data.customers.unshift({id:customerId,name:newName,phone:"",email:"",followUp:"",notes:"Buyer"}); }
+  const v = data.vehicles.find(x=>x.id===id);
+  Object.assign(v,{status:"Sold",salePrice:val("s_price"),soldDate:val("s_date")||today(),buyerId:customerId});
+  save(); modal=null; render();
+}
+function openService(id){
+  modal = () => {
+    const v = data.vehicles.find(x=>x.id===id);
+    const log = (v.serviceLog||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    return sheet(`Service log — ${esc(v.year)} ${esc(v.make)} ${esc(v.model)}`, `
+      <div class="pl" style="padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#B9C4D8">Total recon</span>
+        <span style="font-family:var(--mono);font-weight:800;font-size:18px;color:var(--gold-soft)">${fmt(reconOf(v))}</span>
+      </div>
+      ${N(v.recon)>0?`<div style="font-size:12px;color:var(--gray);margin-bottom:10px">Includes ${fmt(v.recon)} base recon from the unit form.</div>`:""}
+      ${log.map(i=>`<div class="row"><div class="main"><div class="t1">${esc(i.desc)}</div><div class="t2" style="font-family:var(--mono)">${esc(i.date)}</div></div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="amt">${fmt(i.cost)}</span>
+        <button class="x" onclick="delService('${id}','${i.id}')" aria-label="Delete service item">×</button></div></div>`).join("")
+        || `<div style="text-align:center;color:var(--gray);font-size:13px;padding:12px 0 16px">No repairs logged yet. Every part and fix you add rolls into recon automatically.</div>`}
+      <div style="border-top:1.5px solid var(--line);margin-top:6px;padding-top:14px">
+        ${F("Repair / part",`<input id="sv_desc" placeholder="Front brake pads and rotors">`)}
+        <div class="two">
+          ${F("Cost",`<input id="sv_cost" inputmode="decimal" placeholder="180">`)}
+          ${F("Date",`<input id="sv_date" type="date" value="${today()}">`)}
+        </div>
+        <button class="btn gold full" onclick="addService('${id}')">Add to log</button>
+      </div>`);
+  };
+  render();
+}
+function addService(id){
+  if(!val("sv_desc")||val("sv_cost")===""){ alert("Enter the repair and its cost."); return; }
+  const v = data.vehicles.find(x=>x.id===id);
+  v.serviceLog = v.serviceLog||[];
+  v.serviceLog.push({id:uid(),desc:val("sv_desc"),cost:val("sv_cost"),date:val("sv_date")||today()});
+  save(); render();
+}
+function delService(vid,iid){
+  const v = data.vehicles.find(x=>x.id===vid);
+  v.serviceLog = (v.serviceLog||[]).filter(i=>i.id!==iid);
+  save(); render();
+}
+function openCustomer(id){
+  const c = id ? data.customers.find(x=>x.id===id) : null;
+  modal = () => sheet(c?"Edit customer":"Add customer", `
+    ${F("Name",`<input id="c_name" placeholder="Full name" value="${esc(c?.name||"")}">`)}
+    ${F("Phone",`<input id="c_phone" inputmode="tel" placeholder="314-555-0123" value="${esc(c?.phone||"")}">`)}
+    ${F("Email",`<input id="c_email" inputmode="email" placeholder="name@email.com" value="${esc(c?.email||"")}">`)}
+    ${F("Follow-up date",`<input id="c_fu" type="date" value="${esc(c?.followUp||"")}">`)}
+    ${F("Notes",`<input id="c_notes" placeholder="Looking for a truck under $8k" value="${esc(c?.notes||"")}">`)}
+    <button class="btn pri full" onclick="saveCustomer('${id||""}')">${c?"Save changes":"Add customer"}</button>`);
+  render();
+}
+function saveCustomer(id){
+  if(!val("c_name")){ alert("Name is required."); return; }
+  const f = { name:val("c_name"), phone:val("c_phone"), email:val("c_email"), followUp:val("c_fu"), notes:val("c_notes") };
+  if(id){ const i=data.customers.findIndex(x=>x.id===id); data.customers[i]=Object.assign({},data.customers[i],f); }
+  else data.customers.unshift(Object.assign({id:uid()},f));
+  save(); modal=null; render();
+}
+function delCustomer(id){
+  const c = data.customers.find(x=>x.id===id);
+  if(!confirm(`Remove ${c.name}?`)) return;
+  data.customers = data.customers.filter(x=>x.id!==id); save(); render();
+}
+function openExpense(){
+  const cats = ["Lot & property","Insurance","Auction fees","Parts & recon","Fuel & transport","Marketing","Licenses & bonds","Other"];
+  modal = () => sheet("Add expense", `
+    <div class="two">
+      ${F("Amount",`<input id="e_amt" inputmode="decimal" placeholder="150">`)}
+      ${F("Date",`<input id="e_date" type="date" value="${today()}">`)}
+    </div>
+    ${F("Category",`<select id="e_cat">${cats.map(c=>`<option>${c}</option>`).join("")}</select>`)}
+    ${F("Note",`<input id="e_note" placeholder="Gate lock and chain">`)}
+    <button class="btn pri full" onclick="saveExpense()">Add expense</button>`);
+  render();
+}
+function saveExpense(){
+  if(val("e_amt")===""){ alert("Enter the amount."); return; }
+  data.expenses.unshift({id:uid(),amount:val("e_amt"),date:val("e_date")||today(),category:val("e_cat"),note:val("e_note")});
+  save(); modal=null; render();
+}
+
+/* ---------- boot ---------- */
+render();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
